@@ -12,6 +12,7 @@ router.post('/login', UserController.userLogin)
 router.post('/refresh-token', UserController.getNewAccessToken)
 router.post('/reset-password-link', UserController.sendUserPasswordResetEmail)
 router.post('/reset-password/:id/:token', UserController.userPasswordReset)
+router.post('/resend-otp', UserController.resendOTP);
 
 // Protected Routes
 router.get('/me', accessTokenAutoRefresh, passport.authenticate('jwt', { session: false }), UserController.userProfile)

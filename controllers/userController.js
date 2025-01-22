@@ -296,6 +296,36 @@ class UserController {
     }
   }
 
+
+static resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ status: "failed", message: "Email is required" });
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ status: "failed", message: "Email not found" });
+    }
+
+    if (user.is_verified) {
+      return res.status(400).json({ status: "failed", message: "Email is already verified" });
+    }
+
+    // Delete existing OTP entries
+    await EmailVerificationModel.deleteMany({ userId: user._id });
+
+    // Send new OTP
+    await sendEmailVerificationOTP(req, user);
+
+    res.status(200).json({ status: "success", message: "New OTP sent to your email" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: "failed", message: "Unable to resend OTP" });
+  }
+}
+
   // Logout
   static userLogout = async (req, res) => {
     try {
