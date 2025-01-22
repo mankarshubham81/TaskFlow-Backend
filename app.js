@@ -9,6 +9,8 @@ import userRoutes from './routes/userRoutes.js';
 import setTokensCookies from './utils/setTokensCookies.js';
 import './config/passport-jwt-strategy.js'; // Load Passport JWT Strategy
 import './config/google-strategy.js';       // Load Passport Google Strategy
+import taskRoutes from './routes/taskRoutes.js';
+
 
 const app = express();
 
@@ -32,6 +34,7 @@ app.use(passport.initialize());
 
 // Routes
 app.use("/api/user", userRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // Google OAuth Routes
 app.get('/auth/google',
