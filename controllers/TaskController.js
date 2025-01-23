@@ -27,6 +27,35 @@ class TaskController {
     }
   }
 
+  // Update Task (title/description)
+  static updateTask = async (req, res) => {
+    try {
+      const { taskId } = req.params;
+      const { title, description } = req.body;
+
+      const task = await TaskModel.findOneAndUpdate(
+        { _id: taskId, createdBy: req.user._id },
+        { title, description },
+        { new: true, runValidators: true }
+      );
+
+      if (!task) {
+        return res.status(404).json({ 
+          status: "failed", 
+          message: "Task not found or unauthorized" 
+        });
+      }
+
+      res.status(200).json({ status: "success", data: task });
+    } catch (error) {
+      res.status(500).json({ 
+        status: "failed", 
+        message: error.message 
+      });
+    }
+  }
+
+
   // Update Task Status
   static updateTaskStatus = async (req, res) => {
     try {

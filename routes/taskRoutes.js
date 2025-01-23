@@ -16,6 +16,13 @@ router.get('/',
   TaskController.getTasks
 );
 
+// Add this new route for updating task details
+router.put('/:taskId',
+  accessTokenAutoRefresh,
+  passport.authenticate('jwt', { session: false }),
+  TaskController.updateTask
+);
+
 router.patch('/:taskId/status',
   accessTokenAutoRefresh,
   passport.authenticate('jwt', { session: false }),
