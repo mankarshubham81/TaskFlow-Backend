@@ -46,7 +46,7 @@ app.get('/auth/google/callback',
   (req, res) => {
     const { user, accessToken, refreshToken, accessTokenExp, refreshTokenExp } = req.user;
     setTokensCookies(res, accessToken, refreshToken, accessTokenExp, refreshTokenExp);
-    res.redirect(`${FRONTEND_HOST}/user/profile`);
+    res.redirect(`${FRONTEND_HOST}/user/task`);
   }
 );
 
