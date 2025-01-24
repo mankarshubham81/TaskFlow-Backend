@@ -72,14 +72,14 @@ class UserController {
       }
 
       // Check if email is already verified
-      if (existingUser.is_verified) {
+      if (existingUser.isVerified) {
         return res.status(400).json({ status: "failed", message: "Email is already verified" });
       }
 
       // Check if there is a matching email verification OTP
       const emailVerification = await EmailVerificationModel.findOne({ userId: existingUser._id, otp });
       if (!emailVerification) {
-        if (!existingUser.is_verified) {
+        if (!existingUser.isVerified) {
           // console.log(existingUser);
           await sendEmailVerificationOTP(req, existingUser);
           return res.status(400).json({ status: "failed", message: "Invalid OTP, new OTP sent to your email" });
@@ -98,7 +98,7 @@ class UserController {
       }
 
       // OTP is valid and not expired, mark email as verified
-      existingUser.is_verified = true;
+      existingUser.isVerified = true;
       await existingUser.save();
 
       // Delete email verification document
@@ -127,7 +127,7 @@ class UserController {
       }
 
       // Check if user exists
-      if (!user.is_verified) {
+      if (!user.isVerified) {
         return res.status(401).json({ status: "failed", message: "Your account is not verified" });
       }
 
@@ -309,7 +309,7 @@ static resendOTP = async (req, res) => {
       return res.status(404).json({ status: "failed", message: "Email not found" });
     }
 
-    if (user.is_verified) {
+    if (user.isVerified) {
       return res.status(400).json({ status: "failed", message: "Email is already verified" });
     }
 

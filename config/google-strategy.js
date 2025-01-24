@@ -24,7 +24,7 @@ passport.use(new GoogleStrategy({
         user = await UserModel.create({
           name: profile._json.name,
           email: profile._json.email,
-          is_verified: true,
+          isVerified: true,
           password: hashedPassword,
         })
       }
