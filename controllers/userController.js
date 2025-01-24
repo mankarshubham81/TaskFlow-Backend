@@ -8,6 +8,7 @@ import refreshAccessToken from '../utils/refreshAccessToken.js';
 import UserRefreshTokenModel from '../models/UserRefreshToken.js';
 import jwt from "jsonwebtoken"
 import transporter from '../config/emailConfig.js';
+import validator from 'validator';
 class UserController {
   // User Registration
   static userRegistration = async (req, res) => {
@@ -18,6 +19,28 @@ class UserController {
       // Check if all required fields are provided
       if (!name || !email || !password || !password_confirmation) {
         return res.status(400).json({ status: "failed", message: "All fields are required" });
+      }
+
+      if (password.length < 8) {
+        return res.status(400).json({ 
+          status: "failed", 
+          message: "Password must be at least 8 characters" 
+        });
+      }
+
+      // Validation
+      if (!validator.isEmail(email)) {
+        return res.status(400).json({ 
+          status: "fail", 
+          message: "Please provide a valid email address" 
+        });
+      }
+
+      if (password !== password_confirmation) {
+        return res.status(400).json({ 
+          status: "fail", 
+          message: "Password and confirmation do not match" 
+        });
       }
 
       // Check if password and password_confirmation match
