@@ -1,29 +1,28 @@
-import 'dotenv/config';
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
+
 dotenv.config();
-import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: process.env.NODE_ENV === 'production', // Auto SSL detection
+  host: process.env.EMAIL_HOST, // SMTP host
+  port: parseInt(process.env.EMAIL_PORT, 10), // SMTP port
+  secure: process.env.EMAIL_PORT === "465", // Use SSL for port 465
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER, // Your email
+    pass: process.env.EMAIL_PASS, // Your email password or App Password
   },
   tls: {
-    // Modern security settings
-    rejectUnauthorized: true,
-    minVersion: "TLSv1.3"
-  }
+    rejectUnauthorized: true, // Ensures secure connection
+    minVersion: "TLSv1.2", // Use at least TLS 1.2
+  },
 });
 
 // Verify connection on startup
-transporter.verify((error) => {
+transporter.verify((error, success) => {
   if (error) {
-    console.error('SMTP Connection Error:', error);
+    console.error("SMTP Connection Error:", error.message);
   } else {
-    console.log('SMTP Server Ready');
+    console.log("SMTP Server Ready");
   }
 });
 
