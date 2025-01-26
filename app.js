@@ -12,6 +12,7 @@ import "./config/google-strategy.js";       // Load Passport Google Strategy
 import taskRoutes from "./routes/taskRoutes.js";
 
 const app = express();
+app.set('trust proxy', true);
 
 // Environment Variables
 const PORT = process.env.PORT || 5000;
@@ -26,7 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: FRONTEND_HOST,
+    origin: ["https://task-flow-frontend-five.vercel.app/"],
     credentials: true,
   })
 );
@@ -55,6 +56,9 @@ app.get(
     res.redirect(`${FRONTEND_HOST}/user/task`);
   }
 );
+
+const redirectUri = 'https://taskflow-backend-vv35.onrender.com/google/callback';
+console.log("Redirect URI:", redirectUri);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
