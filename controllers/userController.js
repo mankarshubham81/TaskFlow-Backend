@@ -137,6 +137,7 @@ class UserController {
   static userLogin = async (req, res) => {
     try {
       const { email, password } = req.body
+      console.log("email, password",email, password)
       // Check if email and password are provided
       if (!email || !password) {
         return res.status(400).json({ status: "failed", message: "Email and password are required" });
@@ -176,6 +177,15 @@ class UserController {
         access_token_exp: accessTokenExp,
         is_auth: true
       });
+      console.log("179 login data:",{
+        user: { id: user._id, email: user.email, name: user.name, roles: user.roles[0] },
+        status: "success",
+        message: "Login successful",
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        access_token_exp: accessTokenExp,
+        is_auth: true
+      })
       // res.redirect(`${process.env.FRONTEND_HOST}/user/task`);
 
 
