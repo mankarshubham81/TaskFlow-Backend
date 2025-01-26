@@ -176,6 +176,7 @@ class UserController {
         access_token_exp: accessTokenExp,
         is_auth: true
       });
+      res.redirect(`${FRONTEND_HOST}/user/task`);
 
 
     } catch (error) {
