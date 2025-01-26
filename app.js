@@ -26,9 +26,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: FRONTEND_HOST,
-    credentials: true,
-    optionsSuccessStatus: 200,
+    origin: FRONTEND_HOST
   })
 );
 app.use(passport.initialize());
