@@ -134,66 +134,70 @@ class UserController {
   }
 
   // User Login
-  static userLogin = async (req, res) => {
-    try {
-      const { email, password } = req.body
-      console.log("email, password",email, password)
-      // Check if email and password are provided
-      if (!email || !password) {
-        return res.status(400).json({ status: "failed", message: "Email and password are required" });
-      }
-      // Find user by email
-      const user = await UserModel.findOne({ email });
+  
+static userLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-      // Check if user exists
-      if (!user) {
-        return res.status(404).json({ status: "failed", message: "Invalid Email or Password" });
-      }
-
-      // Check if user exists
-      if (!user.isVerified) {
-        return res.status(401).json({ status: "failed", message: "Your account is not verified" });
-      }
-
-      // Compare passwords / Check Password
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ status: "failed", message: "Invalid email or password" });
-      }
-
-      // Generate tokens
-      const { accessToken, refreshToken, accessTokenExp, refreshTokenExp } = await generateTokens(user)
-
-      // Set Cookies
-      setTokensCookies(res, accessToken, refreshToken, accessTokenExp, refreshTokenExp)
-
-      // Send success response with tokens
-      res.status(200).json({
-        user: { id: user._id, email: user.email, name: user.name, roles: user.roles[0] },
-        status: "success",
-        message: "Login successful",
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        access_token_exp: accessTokenExp,
-        is_auth: true
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({ 
+        status: "failed", 
+        message: "Email and password are required" 
       });
-      console.log("179 login data:",{
-        user: { id: user._id, email: user.email, name: user.name, roles: user.roles[0] },
-        status: "success",
-        message: "Login successful",
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        access_token_exp: accessTokenExp,
-        is_auth: true
-      })
-      // res.redirect(`${process.env.FRONTEND_HOST}/user/task`);
-
-
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ status: "failed", message: "Unable to login, please try again later" });
     }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ 
+        status: "failed", 
+        message: "Invalid credentials" 
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({ 
+        status: "failed", 
+        message: "Account not verified" 
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ 
+        status: "failed", 
+        message: "Invalid credentials" 
+      });
+    }
+
+    // Generate tokens
+    const { accessToken, refreshToken, accessTokenExp, refreshTokenExp } = 
+      await generateTokens(user);
+
+    // Set secure cookies
+    setTokensCookies(res, accessToken, refreshToken, 
+      accessTokenExp, refreshTokenExp);
+
+    // Successful response (DO NOT SEND TOKENS IN BODY)
+    res.status(200).json({
+      status: "success",
+      message: "Login successful",
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        roles: user.roles[0]
+      }
+    });
+
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ 
+      status: "failed", 
+      message: "Internal server error" 
+    });
   }
+}
 
   // Get New Access Token OR Refresh Token
   static getNewAccessToken = async (req, res) => {
