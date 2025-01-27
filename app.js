@@ -6,30 +6,31 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 import connectDB from "./config/connectdb.js";
 import userRoutes from "./routes/userRoutes.js";
+import setTokensCookies from "./utils/setTokensCookies.js";
+import "./config/passport-jwt-strategy.js"; // Load Passport JWT Strategy
+import "./config/google-strategy.js";       // Load Passport Google Strategy
 import taskRoutes from "./routes/taskRoutes.js";
-import "./config/passport-jwt-strategy.js";
-import "./config/google-strategy.js";
 
 const app = express();
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
-// Environment variables
+// Environment Variables
 const PORT = process.env.PORT || 5000;
 const DATABASE_URL = process.env.DATABASE_URL;
 const FRONTEND_HOST = process.env.FRONTEND_HOST;
 
-// Database connection
+// Connect to Database
 connectDB(DATABASE_URL);
 
-// Middleware
+// Middleware: JSON Parsing, Cookies, CORS, Passport
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: FRONTEND_HOST,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: ["https://task-flow-frontend-five.vercel.app/"],
+    credentials: true,
+  })
+);
 app.use(passport.initialize());
 
 // Routes
@@ -39,10 +40,7 @@ app.use("/api/tasks", taskRoutes);
 // Google OAuth Routes
 app.get(
   "/auth/google",
-  passport.authenticate("google", { 
-    session: false, 
-    scope: ["profile", "email"] 
-  })
+  passport.authenticate("google", { session: false, scope: ["profile", "email"] })
 );
 
 app.get(
@@ -52,13 +50,17 @@ app.get(
     failureRedirect: `${FRONTEND_HOST}/account/login`,
   }),
   (req, res) => {
-    const { user, accessToken, refreshToken, accessTokenExp, refreshTokenExp } = req.user;
+    const { user, accessToken, refreshToken, accessTokenExp, refreshTokenExp } =
+      req.user;
     setTokensCookies(res, accessToken, refreshToken, accessTokenExp, refreshTokenExp);
     res.redirect(`${FRONTEND_HOST}/user/task`);
   }
 );
 
-// Error handling
+const redirectUri = 'https://taskflow-backend-vv35.onrender.com/google/callback';
+console.log("Redirect URI:", redirectUri);
+
+// Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
@@ -67,7 +69,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Server start
+// Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
